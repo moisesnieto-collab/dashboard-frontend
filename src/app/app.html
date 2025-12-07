@@ -1,0 +1,137 @@
+<div class="dashboard-container">
+
+  <header class="top-bar">
+    <div class="header-left">
+      <span class="app-version">v2.1.0 WEB</span>
+      <span class="badge" [ngClass]="getBadgeClass()">
+        AMB: {{ ambiente }}
+      </span>
+    </div>
+    <div class="header-right">
+      <span class="last-update">🕒 Última Ejecución: {{ ultimaActualizacion }}</span>
+    </div>
+  </header>
+
+  <div class="kpi-panel">
+    <div class="kpi-card blue-border">
+      <small>📈 % Éxito</small><div class="kpi-value blue-text">{{ kpi.percentSuccess }}%</div>
+    </div>
+    <div class="kpi-card green-border">
+      <small>✅ Scraped</small><div class="kpi-value green-text">{{ kpi.scraped | number:'1.0-0' }}</div>
+    </div>
+    <div class="kpi-card orange-border">
+      <small>⚠️ S. Error</small><div class="kpi-value orange-text">{{ kpi.scrapedError | number:'1.0-0' }}</div>
+    </div>
+    <div class="kpi-card red-border">
+      <small>❌ Error</small><div class="kpi-value red-text">{{ kpi.error | number:'1.0-0' }}</div>
+    </div>
+    <div class="kpi-card cyan-border">
+      <small>⚙️ Proceso</small><div class="kpi-value cyan-text">{{ kpi.scraping | number:'1.0-0' }}</div>
+    </div>
+    <div class="kpi-card gray-border">
+      <small>📋 Total</small><div class="kpi-value gray-text">{{ kpi.total | number:'1.0-0' }}</div>
+    </div>
+  </div>
+
+  <div class="date-control-section">
+    <label>📅 Consultar Fecha Scrapper:</label>
+    <input type="date" [(ngModel)]="fechaSeleccionada" (ngModelChange)="cargarTodo()">
+  </div>
+
+  <div class="filter-panel">
+    <div class="filter-item">
+      <label>Status:</label>
+      <select [(ngModel)]="filtroStatus" (change)="aplicarFiltrosLocales()">
+        <option *ngFor="let s of listaStatus" [value]="s">{{s}}</option>
+      </select>
+    </div>
+    <div class="filter-item">
+      <label>Entidad:</label>
+      <select [(ngModel)]="filtroEntidad" (change)="aplicarFiltrosLocales()">
+        <option *ngFor="let e of listaEntidades" [value]="e">{{e}}</option>
+      </select>
+    </div>
+    <div class="filter-item msg-filter">
+      <label>Message:</label>
+      <input type="text"
+             [(ngModel)]="filtroMensaje"
+             (keyup)="aplicarFiltrosLocales()"
+             placeholder="🔍 Filtrar..."
+             class="input-msg">
+    </div>
+    <div class="filter-item key-filter">
+      <label>Case Key:</label>
+      <input type="text" [(ngModel)]="filtroCaseKey" (keyup.enter)="buscarPorCaseKey()" placeholder="🆔 Buscar..." class="input-key">
+    </div>
+
+    <div class="filter-actions">
+      <button class="btn-refresh" (click)="cargarTodo()" title="Refrescar">🔄</button>
+      <button class="btn-excel" (click)="exportarExcelGlobal()">📥 Excel</button>
+      <button class="btn-orange" (click)="exportarSoloErrores()">⚠️ Exp. S.Error</button>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="styled-table">
+      <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Entidad</th>
+        <th>Fecha</th>
+        <th>Inicio</th>
+        <th>Fin</th>
+        <th>Status</th>
+        <th>Mensaje</th>
+        <th>Cant</th>
+        <th>Acción</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of datosFiltrados">
+        <td>{{ item.cliente }}</td>
+        <td>{{ item.entidad }}</td>
+        <td>{{ item.fechaScrapper }}</td>
+        <td>{{ item.horaInicio }}</td>
+        <td>{{ item.horaFin }}</td>
+
+        <td>
+            <span class="status-badge" [ngClass]="{
+              'badge-error': item.status === 'ERROR',
+              'badge-scraped-error': item.status === 'SCRAPED-ERROR',
+              'badge-ok': item.status === 'SCRAPED'}">
+              {{ item.status }}
+            </span>
+        </td>
+
+        <td class="col-message" title="{{ item.message }}">{{ item.message }}</td>
+
+        <td class="col-number">{{ item.cantidad | number:'1.0-0' }}</td>
+
+        <td class="col-action">
+          <button class="btn-small" (click)="exportarFila(item)">Excel</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="cargando" class="loading-overlay">
+    <div class="spinner"></div> Cargando...
+  </div>
+
+  <div class="charts-section">
+    <div class="chart-container">
+      <h3>Top Errores</h3>
+      <div class="chart-box">
+        <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
+      </div>
+    </div>
+    <div class="chart-container">
+      <h3>Tendencia 7 Días</h3>
+      <div class="chart-box">
+        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="'line'"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
