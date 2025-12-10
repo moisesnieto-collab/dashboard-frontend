@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+
 
 export interface ResumenDiario {
   cliente: string;
@@ -30,7 +32,9 @@ export interface ErrorStat {
 })
 export class DataService {
  // private apiUrl = 'http://192.168.1.98:8080/api/dashboard';
-  private apiUrl = 'https://dashboard-backend-q3f4.onrender.com/api/dashboard';
+ // private apiUrl = 'https://dashboard-backend-q3f4.onrender.com/api/dashboard';
+
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
